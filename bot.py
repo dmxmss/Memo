@@ -1,4 +1,5 @@
-import os
+import datetime
+
 from lib import *
 from typing import List
 
@@ -8,7 +9,7 @@ from telegram.ext import (
     ConversationHandler,
 )
 
-TYPING_ENTRY_NAME, TYPING_ENTRY_DESCRIPTION, RECEIVED_ENTRY = range(3)
+TYPING_ENTRY_NAME, TYPING_ENTRY_DESCRIPTION = range(2)
 
 def start(update: Update, context: CallbackContext) -> None:
     context.user_data["entries"] = []
@@ -16,8 +17,9 @@ def start(update: Update, context: CallbackContext) -> None:
 
 def help(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("""
-    /add - create entry
-    /remove <name> - remove entry by <name>
+/add - create entry
+/remove <name> - remove entry by <name>
+/check - check all entries in this day
     """)
 
 def add(update: Update, context: CallbackContext) -> int:
@@ -87,8 +89,31 @@ def remove(update: Update, context: CallbackContext) -> None:
             "Usage: /remove <name>"
         )
 
+
+def check(update: Update, context: CallbackContext) -> None:
+    entries = context.user_data["entries"]
+
+    if not entries:
+        update.message.reply_text(
+            "You don't have any entries"
+        )
+
+    today_entries = filter(today_entry, entries)
+    text = "" 
+
+    for entry in today_entries:
+        text += str(entry) + "\n"
+
+    update.message.reply_text(text)
+
 def names(entries: List[Entry]) -> List[str]:
     return list(map(lambda entry: entry.name, entries))
+
+def today_entry(entry: Entry) -> bool:
+    today = datetime.datetime.today()
+    next_repetition = entry.next_repetition
+
+    return today.year == next_repetition.year and today.month == next_repetition.month and today.day == next_repetition.day
 
 def remove_entry_by_name(name: str, context: CallbackContext) -> None:
     entries = context.user_data["entries"]

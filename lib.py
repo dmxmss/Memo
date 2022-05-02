@@ -1,9 +1,7 @@
 import datetime
 
 class Entry:
-    def __init__(self, name: str, description: str):
-        today = datetime.datetime.today()
-
+    def __init__(self, name: str, description="", date_created=datetime.datetime.today(), amount_of_repetitions=0):
         self._repetitions = [datetime.timedelta(hours=1)
                             ,datetime.timedelta(hours=3)
                             ,datetime.timedelta(days=1)
@@ -11,9 +9,17 @@ class Entry:
                             ,datetime.timedelta(days=30)]
         self._name = name
         self._description = description
-        self._date_created = today
-        self._amount_of_repetitions = 0
-        self._next_repetition = today + self._repetitions[0] 
+        self._date_created = date_created
+        self._amount_of_repetitions = amount_of_repetitions
+        self._next_repetition = date_created + self._repetitions[0] 
+
+    def __str__(self) -> str:
+        text = f"Name: {self.name}, description: {self.description}, next repetition: {self.next_repetition}"
+        return text
+
+    def __repr__(self) -> str:
+        text = f"Entry({self.name}, {self.description}, {self.date_created}, {self.amount_of_repetitions})"
+        return text
 
     @property
     def name(self):

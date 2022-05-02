@@ -4,8 +4,8 @@ class Entry:
     repetitions = [datetime.timedelta(hours=1)
                   ,datetime.timedelta(hours=3)
                   ,datetime.timedelta(days=1)
-                  ,datetime.timedelta(days=7)
-                  ,datetime.timedelta(month=1)]
+                  ,datetime.timedelta(weeks=1)
+                  ,datetime.timedelta(days=30)]
 
     def __init__(self, name: str, description: str):
         today = datetime.datetime.today()
@@ -43,9 +43,9 @@ class Entry:
 
             self._amount_of_repetitions += 1
             self._next_repetition = self._date_created + repetitions[self._amount_of_repetitions] + diff
-           return True
+            return True
 
-       return False
+        return False
 
     def _time_to_repeat(self) -> bool:
         today = datetime.datetime.today()

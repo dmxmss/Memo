@@ -11,3 +11,7 @@ from telegram.ext import (
 def start(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("Hello! I'm Memo, bot for memorization anything you want")
 
+def help(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text("""
+    /add - create entry
+    """)

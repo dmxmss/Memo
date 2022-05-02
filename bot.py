@@ -65,4 +65,5 @@ def _names(entries: List[Entry]) -> List[str]:
 
 def _clear_cache(context: CallbackContext) -> None:
     user_data = context.user_data
-    del user_data["entry_name"]
+    if "entry_name" in user_data:
+        del user_data["entry_name"]

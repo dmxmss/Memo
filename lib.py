@@ -1,4 +1,6 @@
 import datetime
+from telegram.ext import CallbackContext
+from typing import List
 
 class Entry:
     def __init__(self, name: str, description="", date_created=datetime.datetime.today(), amount_of_repetitions=0):
@@ -58,3 +60,21 @@ class Entry:
         total_repetitions = len(self._repetitions)
 
         return diff >= datetime.timedelta(0) & self._amount_of_repetitions < total_repetitions
+
+def names(entries: List[Entry]) -> List[str]:
+    return list(map(lambda entry: entry.name, entries))
+
+def today_entry(entry: Entry) -> bool:
+    today = datetime.datetime.today()
+    next_repetition = entry.next_repetition
+
+    return today.year == next_repetition.year and today.month == next_repetition.month and today.day == next_repetition.day
+
+def remove_entry_by_name(name: str, context: CallbackContext) -> None:
+    entries = context.user_data["entries"]
+    context.user_data["entries"] = list(filter(lambda entry: entry.name != name, entries))
+
+def clear_cache(context: CallbackContext) -> None:
+    user_data = context.user_data
+    if "entry_name" in user_data:
+        del user_data["entry_name"]

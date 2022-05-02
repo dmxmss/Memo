@@ -1,7 +1,6 @@
 import datetime
 
 from lib import *
-from typing import List
 
 from telegram import Update
 from telegram.ext import (
@@ -105,21 +104,3 @@ def check(update: Update, context: CallbackContext) -> None:
         text += str(entry) + "\n"
 
     update.message.reply_text(text)
-
-def names(entries: List[Entry]) -> List[str]:
-    return list(map(lambda entry: entry.name, entries))
-
-def today_entry(entry: Entry) -> bool:
-    today = datetime.datetime.today()
-    next_repetition = entry.next_repetition
-
-    return today.year == next_repetition.year and today.month == next_repetition.month and today.day == next_repetition.day
-
-def remove_entry_by_name(name: str, context: CallbackContext) -> None:
-    entries = context.user_data["entries"]
-    context.user_data["entries"] = list(filter(lambda entry: entry.name != name, entries))
-
-def clear_cache(context: CallbackContext) -> None:
-    user_data = context.user_data
-    if "entry_name" in user_data:
-        del user_data["entry_name"]

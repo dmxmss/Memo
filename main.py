@@ -15,6 +15,7 @@ def main() -> None:
 
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help))
+    dispatcher.add_handler(CommandHandler("remove", remove))
     dispatcher.add_handler(ConversationHandler(
         entry_points=[CommandHandler("add", add)],
         states={

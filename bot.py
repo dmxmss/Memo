@@ -8,14 +8,16 @@ from telegram.ext import (
     ConversationHandler,
 )
 
-TYPING_ENTRY_NAME, TYPING_ENTRY_DESCRIPTION = range(2)
+TYPING_ENTRY_NAME, TYPING_ENTRY_DESCRIPTION, RECEIVED_ENTRY = range(3)
 
 def start(update: Update, context: CallbackContext) -> None:
+    context.user_data["entries"] = []
     update.message.reply_text("Hello! I'm Memo, bot for memorization anything you want")
 
 def help(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("""
     /add - create entry
+    /remove <name> - remove entry by <name>
     """)
 
 def add(update: Update, context: CallbackContext) -> int:
@@ -25,9 +27,9 @@ def add(update: Update, context: CallbackContext) -> int:
 def handle_typing_name(update: Update, context: CallbackContext) -> int:
     user_data = context.user_data
     entry_name = update.message.text
-    entries = user_data.get("entries", [])
+    entries = user_data["entries"]
 
-    if entry_name in _names(entries):
+    if entry_name in names(entries):
         update.message.reply_text(
             "Entry with this name already exists"
             "Please type another entry name"
@@ -42,28 +44,57 @@ def handle_typing_name(update: Update, context: CallbackContext) -> int:
 
 def handle_typing_description(update: Update, context: CallbackContext) -> int:
     user_data = context.user_data
-    entry_description = update.message.text
+    entries = user_data["entries"]
     entry_name = user_data["entry_name"]
-    entries = user_data.get("entries", [])
+    entry_description = update.message.text
 
-    entry = Entry(entry_name, entry_description)
-    entries.append(entry)
+    entries.append(Entry(entry_name, entry_description))
 
-    _clear_cache(context)
+    clear_cache(context)
+
+    update.message.reply_text(
+        f"Entry with name {entry_name} was successfully created"
+    )
+
     return ConversationHandler.END
 
 def cancel(update: Update, context: CallbackContext) -> int:
     update.message.reply_text(
         "Cancelled"
     )
-    _clear_cache(context)
+
+    clear_cache(context)
 
     return ConversationHandler.END
 
-def _names(entries: List[Entry]) -> List[str]:
+def remove(update: Update, context: CallbackContext) -> None:
+    try:
+        entry_name = context.args[0]
+        entries = context.user_data["entries"]
+        if entry_name not in names(entries):
+            update.message.reply_text(
+                "Entry with this name is absent"
+            )
+            return
+
+        remove_entry_by_name(entry_name, context)
+
+        update.message.reply_text(
+            f"Entry with name {entry_name} was successfully removed"
+        )
+    except IndexError:
+        update.message.reply_text(
+            "Usage: /remove <name>"
+        )
+
+def names(entries: List[Entry]) -> List[str]:
     return list(map(lambda entry: entry.name, entries))
 
-def _clear_cache(context: CallbackContext) -> None:
+def remove_entry_by_name(name: str, context: CallbackContext) -> None:
+    entries = context.user_data["entries"]
+    context.user_data["entries"] = list(filter(lambda entry: entry.name != name, entries))
+
+def clear_cache(context: CallbackContext) -> None:
     user_data = context.user_data
     if "entry_name" in user_data:
         del user_data["entry_name"]

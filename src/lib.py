@@ -13,7 +13,7 @@ class Entry:
         self._description = description
         self._date_created = date_created
         self._amount_of_repetitions = amount_of_repetitions
-        self._next_repetition = date_created + self._repetitions[0] 
+        self._next_repetition = date_created + self._repetitions[amount_of_repetitions] 
 
     def __str__(self) -> str:
         text = f"Name: {self.name}, description: {self.description}, next repetition: {self.next_repetition}"
@@ -22,6 +22,10 @@ class Entry:
     def __repr__(self) -> str:
         text = f"Entry({self.name}, {self.description}, {self.date_created}, {self.amount_of_repetitions})"
         return text
+
+    @property
+    def repetitions(self):
+        return self._repetitions
 
     @property
     def name(self):
@@ -59,7 +63,7 @@ class Entry:
         diff = today - self._next_repetition 
         total_repetitions = len(self._repetitions)
 
-        return diff >= datetime.timedelta(0) & self._amount_of_repetitions < total_repetitions
+        return diff >= datetime.timedelta(0) and self._amount_of_repetitions < total_repetitions
 
 def names(entries: List[Entry]) -> List[str]:
     return list(map(lambda entry: entry.name, entries))
